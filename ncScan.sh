@@ -1,0 +1,1 @@
+(for addr in {1..254}; do for port in {20..23} 80; do nc -nvzw 1 10.25.0.$addr $port 2>&1; done& done) | grep 'open'
