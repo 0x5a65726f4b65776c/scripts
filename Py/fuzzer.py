@@ -1,7 +1,7 @@
 import socket, time, sys
 
-ip = '10.11.1.220'
-port = '445'
+ip = 'BOF.thm'
+port = '1337'
 timeout = 5
 
 buffer = []
