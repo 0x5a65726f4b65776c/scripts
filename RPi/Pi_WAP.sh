@@ -3,7 +3,7 @@
 2>&1 >> Pi_WAP_Error_Log.txt
 echo "Logging errors to $PWD/Pi_WAP_Error_Log.txt"
 
-echo "[+]...Updating sudo system...[+]"
+echo "[+]...Updating system...[+]"
 sleep 3
 apt update && apt full-upgrade -y && apt autoremove -y && apt autoclean
 sleep 1
