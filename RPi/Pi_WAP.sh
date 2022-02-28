@@ -1,7 +1,7 @@
 #! /bin/bash
 
 2>&1 >> Pi_WAP_Error_Log.txt
-echo "Logging errors to $PWD/Pi_WAP_Error_Log.txt"
+echo "Logging script errors to $PWD/Pi_WAP_Error_Log.txt"
 
 echo "[+]...Updating system...[+]"
 sleep 3
