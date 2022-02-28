@@ -1,102 +1,98 @@
 #! /bin/bash
 
-printf "[+]...Updating system...[+]
+2>&1 >> Pi_WAP_Error_Log.txt
+echo "Logging errors to $PWD/Pi_WAP_Error_Log.txt"
+
+echo "[+]...Updating sudo system...[+]"
+sleep 3
 apt update && apt full-upgrade -y && apt autoremove -y && apt autoclean
 sleep 1
 
-printf "[+]...Installing TOR, Privoxy, HostAPD, IPTables, bridge utils, and DNSMasq...[+]"
+echo "[+]...Installing TOR, Privoxy, HostAPD, IPTables, bridge utils, and DNSMasq...[+]"
 apt install -y tor privoxy hostapd dnsmasq iptables bridge-utils
-if $? != 0
-    then echo "[+]***Command failed. Exiting now***[+]"
-    else echo "[+]***Command successful. Moving on***[+]" && sleep 1
-fin
 
-printf "[+]...Stopping hostapd and dnsmasq...[+]"
-systemctl stop hostapd
-systemctl stop dnsmasq
-systemctl stop tor
-systemctl stop privoxy
-if $? != 0
-    then echo "[+]***Command failed. Exiting now***[+]"
-    else echo "[+]***Command successful. Moving on***[+]" && sleep 1
-fin
+echo "[+]...Temporarily stopping HostAPD, DNSMasq, TOR, and Privoxy services...[+]"
+sudo systemctl unmask hostapd
+sudo systemctl enable hostapd
+sudo systemctl stop hostapd
+sudo systemctl stop dnsmasq
+sudo systemctl stop tor
+sudo systemctl stop privoxy
 
-printf "[+]...Editing DHCP config file...[+]"
-sleep 1
-printf "interface wlan0\n static ip_address=192.168.0.1/24\n denyinterfaces eth0\n denyinterfaces wlan0" | tee -a /etc/dhcpcd.conf
+
+echo "[+]...Editing DHCP confing finle...[+]"
+sleep 3
+printf "interface wlan0 \nstatic ip_address=192.168.0.1/24 \ndenyinterfaces eth0 \ndenyinterfaces wlan0\n" | tee -a /etc/dhcpcd.conf
 tail /etc/dhcpcd.conf
 sleep 3
 
-printf "[+]...Configuring DHCP server...[+]"
+echo "[+]...Confinguring DHCP server...[+]"
 sleep 1
 mv /etc/dnsmasq.conf /etc/dnsmasq.conf.orig
-printf "interface=wlan0\n dhcp-range=192.168.0.2,192.168.0.254,255.255.255.0,24h" | tee -a /etc/dnsmasq.conf
-if $? != 0
-    then echo "[+]***Command failed. Exiting now***[+]"
-    else echo "[+]***Command successful. Moving on***[+]" && sleep 1
+printf "interface=wlan0 \ndhcp-range=192.168.0.2,192.168.0.254,255.255.255.0,24h\n" | tee -a /etc/dnsmasq.conf
+
+
+echo "[+]...Confinguring hostapd...[+]"
+printf "country_code=us \ninterface=wlan0 \nbridge=br0 \nhw_mode=g \nchannel=7 \nwmm_enabled=0 \nmacaddr_acl=0 \nauth_algs=1 \nignore_broadcast_ssid=0 \nwpa=2\n wpa_key_mgmt=WPA-PSK \nwpa_pairwise=TKIP \nrsn_pairwise=CCMP \nssid=***YOUR NETWORK*** \nwpa_passphrase=***YOUR PASSWORD***\n"
+if $? != 0;
+    then echo "[+]***Command failed. Exiting now***[+]" && cat ./Pi_WAP_Error_Log.txt
+    else echo "[+]***Command successful. Moving on***[+]" && sleep 3
 fin
 
-printf "[+]...Configuring hostapd...[+]"
-printf "country_code=us\n interface=wlan0\n bridge=br0\n hw_mode=g\n channel=7\n wmm_enabled=0\n macaddr_acl=0\n auth_algs=1\n ignore_broadcast_ssid=0\n wpa=2\n wpa_key_mgmt=WPA-PSK\n wpa_pairwise=TKIP\n rsn_pairwise=CCMP\n ssid=***NETWORK***\n wpa_passphrase=***PASSWORD***"
-if $? != 0
-    then echo "[+]***Command failed. Exiting now***[+]"
-    else echo "[+]***Command successful. Moving on***[+]" && sleep 1
-fin
-
-printf "[+]...Showing the system where hostapg config is...[+]"
+echo "[+]...Showing the sudo system where hostapg confing is...[+]"
 printf "DAEMON_CONF="/etc/hostapd/hostapd.conf"" | tee -a /etc/default/hostapd
-if $? != 0
-    then echo "[+]***Command failed. Exiting now***[+]"
-    else echo "[+]***Command successful. Moving on***[+]" && sleep 1
+if $? != 0;
+    then echo "[+]***Command failed. Exiting now***[+]" && cat ./Pi_WAP_Error_Log.txt
+    else echo "[+]***Command successful. Moving on***[+]" && sleep 3
 fin
 
-printf "[+]...Forwarding IP traffic...[+]"
-printf "net.ipv4.ip_forward=1" | tee -a /etc/sysctl.conf
-if $? != 0
-    then echo "[+]***Command failed. Exiting now***[+]"
-    else echo "[+]***Command successful. Moving on***[+]" && sleep 1
+echo "[+]...Forwarding IP traffic...[+]"
+printf "net.ipv4.ip_forward=1" | tee -a /etc/sudo sysctl.conf
+if $? != 0;
+    then echo "[+]***Command failed. Exiting now***[+]" && cat ./Pi_WAP_Error_Log.txt
+    else echo "[+]***Command successful. Moving on***[+]" && sleep 3
 fin
 
-printf "[+]...Editing IPTables rules...[+]"
+echo "[+]...Editing IPTables rules...[+]"
 iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 sh -c "iptables-save > /etc/iptables.ipv4.nat"
-if $? != 0
-    then echo "[+]***Command failed. Exiting now***[+]"
-    else echo "[+]***Command successful. Moving on***[+]" && sleep 1
+if $? != 0;
+    then echo "[+]***Command failed. Exiting now***[+]" && cat ./Pi_WAP_Error_Log.txt
+    else echo "[+]***Command successful. Moving on***[+]" && sleep 3
 fin
 
-printf "[+]...Adding a new bridge...[+]"
+echo "[+]...Adding a new bridge...[+]"
 brctl addbr br0
-if $? != 0
-    then echo "[+]***Command failed. Exiting now***[+]"
-    else echo "[+]***Command successful. Moving on***[+]" && sleep 1
+if $? != 0;
+    then echo "[+]***Command failed. Exiting now***[+]" && cat ./Pi_WAP_Error_Log.txt
+    else echo "[+]***Command successful. Moving on***[+]" && sleep 3
 fin
 
-printf "[+]...Linking br0 to eth0...[+]"
+echo "[+]...Linking br0 to eth0...[+]"
 brctl addif br0 eth0
-if $? != 0
-    then echo "[+]***Command failed. Exiting now***[+]"
-    else echo "[+]***Command successful. Moving on***[+]" && sleep 1
+if $? != 0;
+    then echo "[+]***Command failed. Exiting now***[+]" && cat ./Pi_WAP_Error_Log.txt
+    else echo "[+]***Command successful. Moving on***[+]" && sleep 3
 fin
 
-printf "[+]...Adding br0 to Network Interfaces...[+]"
-printf "auto br0\n iface br0 inet manual\n bridge_ports eth0 wlan0"
-if $? != 0
-    then echo "[+]***Command failed. Exiting now***[+]"
-    else echo "[+]***Command successful. Moving on***[+]" && sleep 1
+echo "[+]...Adding br0 to Network Interfaces...[+]"
+printf "auto br0 \niface br0 inet manual \nbridge_ports eth0 wlan0"
+if $? != 0;
+    then echo "[+]***Command failed. Exiting now***[+]" && cat ./Pi_WAP_Error_Log.txt
+    else echo "[+]***Command successful. Moving on***[+]" && sleep 3
 fin
 
-printf "[+]...Enabling services...[+]"
-systemctl enable tor
-systemctl enable privoxy
-systemctl enable hostapd
-systemctl enable dnsmasq
-if $? != 0
-    then echo "[+]***Command failed. Exiting now***[+]"
-    else echo "[+]***Command successful. Moving on***[+]" && sleep 1
-fin 
+echo "[+]...Enabling services...[+]"
+sudo systemctl enable tor
+sudo systemctl enable privoxy
+sudo systemctl enable hostapd
+sudo systemctl enable dnsmasq
+if $? != 0;
+    then echo "[+]***Command failed. Exiting now***[+]" && cat ./Pi_WAP_Error_Log.txt
+    else echo "[+]***Command successful. Moving on***[+]" && sleep 3
+fin
 
-printf "[+]...Rebooting now...[+]"
-sleep 2
+echo "[+]...Rebooting now...[+]"
+sleep 3
 
-reboot
+sudo reboot
