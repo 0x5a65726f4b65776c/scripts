@@ -35,7 +35,10 @@ echo "[+]...Configuring the DHCP server...[+]"
 sleep 1
 mv /etc/dnsmasq.conf /etc/dnsmasq.conf.orig
 printf "interface=wlan0\n dhcp-range=192.168.0.2,192.168.0.254,255.255.255.0,24h\n" | tee -a /etc/dnsmasq.conf
-
+if $? !=0;
+then echo "[+]***Command failed. Exiting now***[+]" && cat ./Pi_WAP_Error_Log.txt
+    else echo "[+]***Command successful. Moving on***[+]" && sleep 3
+fin
 
 echo "[+]...Configuring hostapd...[+]"
 printf "country_code=us\ninterface=wlan0\nbridge=br0\nhw_mode=g\nchannel=7\nwmm_enabled=0\nmacaddr_acl=0\nauth_algs=1\nignore_broadcast_ssid=0\nwpa=2\nwpa_key_mgmt=WPA-PSK\nwpa_pairwise=TKIP\nrsn_pairwise=CCMP\nssid=$ssid\nwpa_passphrase=$passphrase" | tee /etc/hostapd/hostapd.conf
