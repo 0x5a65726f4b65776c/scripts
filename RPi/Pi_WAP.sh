@@ -1,6 +1,8 @@
-#! /bin/bash 2>> Pi_WAP_Error_Log.txt
+#! /bin/bash
 
+#This will download and configure everything needed to turn your Pi into a Wireless Access Point
 
+{
 echo "Logging script errors to $PWD/Pi_WAP_Error_Log.txt"
 
 echo "[+]...Updating sudo system...[+]"
@@ -94,5 +96,6 @@ fin
 
 echo "[+]...Rebooting now...[+]"
 sleep 3
+} 2>&1 >> $PWD/Pi_WAP_Error_Log.txt
 
 sudo reboot
