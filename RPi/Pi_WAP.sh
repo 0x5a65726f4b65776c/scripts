@@ -35,7 +35,9 @@ printf "interface=wlan0\n dhcp-range=192.168.0.2,192.168.0.254,255.255.255.0,24h
 
 
 echo "[+]...Confinguring hostapd...[+]"
-printf "country_code=us\ninterface=wlan0\nbridge=br0\nhw_mode=g\nchannel=7\nwmm_enabled=0\nmacaddr_acl=0\nauth_algs=1\nignore_broadcast_ssid=0\nwpa=2\nwpa_key_mgmt=WPA-PSK\nwpa_pairwise=TKIP\nrsn_pairwise=CCMP\nssid=Something Witty\nwpa_passphrase=Y0u-W1ll-N0t-G3t,TH!$\n" | tee /etc/hostapd/hostapd.conf
+printf "country_code=us\ninterface=wlan0\nbridge=br0\nhw_mode=g\nchannel=7\nwmm_enabled=0\nmacaddr_acl=0\nauth_algs=1\nignore_broadcast_ssid=0\nwpa=2\nwpa_key_mgmt=WPA-PSK\nwpa_pairwise=TKIP\nrsn_pairwise=CCMP\n" | tee /etc/hostapd/hostapd.conf
+echo "ssid=***Your SSID***" | tee -a /etc/hostapd/hostapd.conf
+echo "wpa_passphrase=***Your Passphrase***" | tee -a /etc/hostapd/hostapd.conf
 if $? != 0;
     then echo "[+]***Command failed. Exiting now***[+]" && cat ./Pi_WAP_Error_Log.txt
     else echo "[+]***Command successful. Moving on***[+]" && sleep 3
