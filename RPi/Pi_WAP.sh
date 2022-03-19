@@ -5,7 +5,7 @@ read -p 'Network name: ' ssid
 read -p 'Network passphrase: ' passphrase
 
 {
-echo "Logging script errors to $PWD/Pi_WAP_Error_Log.txt"
+echo "Logging script errors to $PWD/Pi_WAP_Errors.txt"
 
 echo "[+]...Updating your system...[+]"
 sleep 3
@@ -35,7 +35,7 @@ mv /etc/dnsmasq.conf /etc/dnsmasq.conf.orig
 printf "interface=wlan0\n dhcp-range=192.168.0.2,192.168.0.254,255.255.255.0,24h\n" | tee -a /etc/dnsmasq.conf
 
 echo "[+]...Configuring hostapd...[+]"
-printf "country_code=us\ninterface=wlan0\nbridge=br0\nhw_mode=g\nchannel=7\nwmm_enabled=0\nmacaddr_acl=0\nauth_algs=1\nignore_broadcast_ssid=0\nwpa=2\nwpa_key_mgmt=WPA-PSK\nwpa_pairwise=TKIP\nrsn_pairwise=CCMP\nssid=$ssid\nwpa_passphrase=$passphrase" | tee /etc/hostapd/hostapd.conf
+printf "country_code=US\ninterface=wlan0\nbridge=br0\nhw_mode=g\nchannel=7\nwmm_enabled=0\nmacaddr_acl=0\nauth_algs=1\nignore_broadcast_ssid=0\nwpa=2\nwpa_key_mgmt=WPA-PSK\nwpa_pairwise=TKIP\nrsn_pairwise=CCMP\nssid=$ssid\nwpa_passphrase=$passphrase" | tee /etc/hostapd/hostapd.conf
 
 echo "[+]...Telling the system where hostapd config is...[+]"
 printf "DAEMON_CONF="/etc/hostapd/hostapd.conf"" | tee -a /etc/default/hostapd
@@ -58,7 +58,6 @@ sudo systemctl enable systemd-networkd
 echo "[+]***Ensuring WiFi isn't blocked***[+]
 sudo rfkill unblock wlan
 
-
 echo "[+]...Enabling services...[+]"
 sudo systemctl enable tor
 sudo systemctl enable privoxy
@@ -67,6 +66,6 @@ sudo systemctl enable dnsmasq
 
 echo "[+]...Rebooting now...[+]"
 sleep 3
-} 2>&1 >> $PWD/Pi_WAP_Error_Log.txt
+} 2>&1 >> $PWD/Pi_WAP_Errors.txt
 
 sudo reboot
