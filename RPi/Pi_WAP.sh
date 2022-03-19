@@ -25,7 +25,7 @@ sudo systemctl stop privoxy
 
 echo "[+]...Editing the DHCP config file...[+]"
 sleep 3
-printf "interface wlan0\nstatic ip_address=192.168.0.1\ndenyinterfaces eth0\ndenyinterfaces wlan0\n" | tee -a /etc/dhcpcd.conf
+printf "interface=wlan0\nstatic ip_address=192.168.0.1\ndenyinterfaces eth0\ndenyinterfaces wlan0\n" | tee -a /etc/dhcpcd.conf
 tail /etc/dhcpcd.conf
 sleep 3
 
